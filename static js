@@ -1,0 +1,14 @@
+function sendCommand() {
+    let command = document.getElementById("command").value;
+    
+    fetch('/process_text', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ command: command })
+    })
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById("output").innerText = data.response;
+    })
+    .catch(error => console.error('Error:', error));
+}
