@@ -1,3 +1,31 @@
+import subprocess
+import sys
+
+def install_modules():
+    modules = [
+        'pyttsx3',
+        'SpeechRecognition',
+        'pyaudio',
+        'requests',
+        'spotipy'
+    ]
+    
+    for module in modules:
+        try:
+            print(f"Installing {module}...")
+            subprocess.check_call([sys.executable, '-m', 'pip', 'install', 
+                                '--default-timeout=100', module])
+            print(f"Successfully installed {module}")
+        except Exception as e:
+            print(f"Error installing {module}: {e}")
+
+if __name__ == "__main__":
+    print("Starting module installation...")
+    install_modules()
+    print("Installation process completed!")
+
+
+
 from flask import Flask, request, jsonify, render_template
 import pyttsx3
 import speech_recognition as sr
