@@ -7,7 +7,8 @@ def install_modules():
         'SpeechRecognition',
         'pyaudio',
         'requests',
-        'spotipy'
+        'spotipy',
+        'eSpeak'
     ]
     
     for module in modules:
