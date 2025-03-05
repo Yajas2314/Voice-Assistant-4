@@ -3,7 +3,7 @@ import sys
 
 def install_modules():
     modules = [
-        'pyttsx3',
+        'gTTs',
         'SpeechRecognition',
         'pyaudio',
         'requests',
@@ -28,7 +28,7 @@ if __name__ == "__main__":
 
 
 from flask import Flask, request, jsonify, render_template
-import pyttsx3
+import gTTs
 import speech_recognition as sr
 import requests
 import random
@@ -36,7 +36,7 @@ import random
 app = Flask(__name__)
 
 # Initialize text-to-speech engine
-engine = pyttsx3.init()
+engine = gTTs.init()
 engine.setProperty('rate', 150)
 
 # Weather API key
