@@ -25,7 +25,7 @@ if __name__ == "__main__":
 
 
 from flask import Flask, request, jsonify, render_template
-from gtts import gtts
+from gtts import gTTs
 import os
 import speech_recognition as sr
 import requests
@@ -34,13 +34,13 @@ import random
 app = Flask(__name__)
 
 def speak(text):
-    tts = gtts(text=text, lang='en')
+    tts = gTTs(text=text, lang='en')
     tts.save("output.mp3")
     os.system("mpg321 output.mp3")  # Install mpg321 if needed
 
 
 # Initialize text-to-speech engine
-engine = gtts.init()
+engine = gTTs.init()
 engine.setProperty('rate', 150)
 
 # Weather API key
