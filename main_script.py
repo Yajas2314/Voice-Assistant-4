@@ -5,8 +5,7 @@ def install_modules():
     modules = [
         'gtts',
         'SpeechRecognition',
-        'requests',
-        'os'
+        'requests'
     ]
     
     for module in modules:
