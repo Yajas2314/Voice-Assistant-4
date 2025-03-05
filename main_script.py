@@ -39,10 +39,6 @@ def speak(text):
     os.system("mpg321 output.mp3")  # Install mpg321 if needed
 
 
-# Initialize text-to-speech engine
-engine = gTTS.init()
-engine.setProperty('rate', 150)
-
 # Weather API key
 WEATHER_API_KEY = "089cb559edf9127ca22ca63afa575f8c"
 
