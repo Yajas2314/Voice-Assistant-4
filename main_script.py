@@ -5,9 +5,7 @@ def install_modules():
     modules = [
         'gTTs',
         'SpeechRecognition',
-        'pyaudio',
         'requests',
-        'spotipy',
         'eSpeak'
     ]
     
