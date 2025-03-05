@@ -28,12 +28,18 @@ if __name__ == "__main__":
 
 
 from flask import Flask, request, jsonify, render_template
-import gTTs
+from gTTs import gTTs
 import speech_recognition as sr
 import requests
 import random
 
 app = Flask(__name__)
+
+def speak(text):
+    tts = gTTS(text=text, lang='en')
+    tts.save("output.mp3")
+    os.system("mpg321 output.mp3")  # Install mpg321 if needed
+
 
 # Initialize text-to-speech engine
 engine = gTTs.init()
