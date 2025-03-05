@@ -6,7 +6,7 @@ def install_modules():
         'gTTs',
         'SpeechRecognition',
         'requests',
-        'eSpeak'
+        'os'
     ]
     
     for module in modules:
@@ -27,6 +27,7 @@ if __name__ == "__main__":
 
 from flask import Flask, request, jsonify, render_template
 from gTTs import gTTs
+import os
 import speech_recognition as sr
 import requests
 import random
