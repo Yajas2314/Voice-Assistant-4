@@ -7,6 +7,15 @@ import random
 
 app = Flask(__name__)
 
+@app.route('/')
+def home():
+    return "Hello, Flask is running on Render!"
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))  # Use Render's PORT
+    app.run(host="0.0.0.0", port=port, debug=True)
+
+
 def speak(text):
     tts = gTTS(text=text, lang='en')
     tts.save("output.mp3")
