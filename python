@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, jsonify
-import pyttsx3
+from gTTs import gTTs
 import speech_recognition as sr
 import requests
 import random
@@ -7,7 +7,7 @@ import random
 app = Flask(__name__)
 
 # Initialize text-to-speech engine
-engine = pyttsx3.init()
+engine = gTTs.init()
 engine.setProperty('rate', 150)
 
 # Weather API Key
