@@ -12,10 +12,6 @@ def speak(text):
     tts.save("output.mp3")
     os.system("mpg321 output.mp3") 
 
-# Initialize text-to-speech engine
-engine = gTTS.init()
-engine.setProperty('rate', 150)
-
 # Weather API Key
 WEATHER_API_KEY = "089cb559edf9127ca22ca63afa575f8c"
 
