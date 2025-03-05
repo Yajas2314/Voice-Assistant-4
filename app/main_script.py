@@ -13,10 +13,9 @@ def home():
     return "Hello, Flask is running on Render!"
 
 if __name__ == "__main__":
-    port = int(os.getenv("PORT", 5000))  # Use Render's dynamic port
+   port = int(os.getenv("PORT", 5000))  # Use Render's dynamic port
     print(f"🟢 Starting Flask on 0.0.0.0:{port}...")  # Debugging log
     app.run(host="0.0.0.0", port=port)  # MUST use 0.0.0.0
-    gunicorn main:app --bind 0.0.0.0:$PORT
 
 
 def speak(text):
