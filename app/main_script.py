@@ -15,7 +15,7 @@ def home():
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 10000))  # Get Render's port
     print(f"🟢 Starting Flask on port {port}...")  # Debugging log
-    app.run(host="0.0.0.0", port=port, debug=False)
+    app.run(host="127.0.0.1", port=port, debug=True)
     gunicorn main:app --bind 0.0.0.0:$PORT
 
 def speak(text):
