@@ -15,7 +15,7 @@ def home():
 if __name__ == "__main__":
    port = int(os.environ.get("PORT", 5000))  # Use Render's dynamic port
     print(f"🟢 Starting Flask on 0.0.0.0:{port}...")  # Debugging log
-    app.run(host="0.0.0.10", port=port)  # MUST use 0.0.0.0
+    app.run(host="0.0.0.0", port=port)  # MUST use 0.0.0.0
 
 
 def speak(text):
