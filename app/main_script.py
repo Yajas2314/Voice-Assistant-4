@@ -12,19 +12,6 @@ app = Flask(__name__)
 def home():
     return "Hello, Flask is running on Render!"
 
-const express = require('express')
-const app = express()
-const port = process.env.PORT || 5000;
-
-app.get('/', (req, res) => {
-  res.send('Hello World!')
-})
-
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
-})
-
-
 
 import os
 from flask import Flask
@@ -36,8 +23,8 @@ def home():
     return "Flask is running on Render!"
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))  # Use PORT from Render, default to 8080
-    app.run(host="0.0.0.0", port=port, debug=False)  # Turn off debugger
+    port = int(os.environ.get("PORT", 5000))  
+    app.run(host="0.0.0.0", port=port)  # Turn off debugger
 
 
 
