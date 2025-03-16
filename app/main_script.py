@@ -12,6 +12,20 @@ app = Flask(__name__)
 def home():
     return "Hello, Flask is running on Render!"
 
+const express = require('express')
+const app = express()
+const port = process.env.PORT || 5000;
+
+app.get('/', (req, res) => {
+  res.send('Hello World!')
+})
+
+app.listen(port, () => {
+  console.log(`Example app listening on port ${port}`)
+})
+
+
+
 if __name__ == "__main__":
    port = process.env.PORT || 5000  # Use Render's dynamic port
     print(f"🟢 Starting Flask on 0.0.0.0:{port}...")  # Debugging log
