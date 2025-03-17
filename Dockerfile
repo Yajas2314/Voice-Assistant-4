@@ -1,34 +1,28 @@
-
-# Use an official Python runtime as a parent image
+# Use an official Python runtime as base image
 FROM python:3.10
 
-COPY requirements.txt /app/  
-WORKDIR /app  
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Set the working directory in the container
+# Set the working directory inside the container
 WORKDIR /app
 
-# Copy the current directory contents into the container
-COPY . /main_script
+# Copy requirements.txt from the project root into the container
+COPY requirements.txt /app/
 
-RUN pip install --upgrade pip setuptools wheel
+# Copy the app folder (main script)
+COPY app /app/
 
-RUN apt-get update && apt-get install -y \
-    python3-dev \
-    build-essential \
-    libssl-dev \
-    libffi-dev \
-    && rm -rf /var/lib/apt/lists/*
+# Copy the templates folder separately
+COPY templates /app/templates/
+
+# Copy CSS and JS files separately
+COPY style.css /app/static/style.css
+COPY script.js /app/static/script.js
 
 # Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Set environment variables
-ENV PORT=5000
-
-# Expose the port Render will use
+# Expose port 5000 for the Flask app
 EXPOSE 5000
 
-# Command to run the app
-CMD ["python", "app.py"]
+# Command to run the correct script
+CMD ["python", "main_script.py"]
+
