@@ -2,10 +2,10 @@
 FROM python:3.10
 
 # Set the working directory in the container
-WORKDIR /app
+WORKDIR /main_script
 
 # Copy the current directory contents into the container
-COPY . /app
+COPY . /main_script
 
 # Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
