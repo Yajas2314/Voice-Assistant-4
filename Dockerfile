@@ -7,6 +7,15 @@ WORKDIR /app
 # Copy the current directory contents into the container
 COPY . /main_script
 
+RUN pip install --upgrade pip setuptools wheel
+
+RUN apt-get update && apt-get install -y \
+    python3-dev \
+    build-essential \
+    libssl-dev \
+    libffi-dev \
+    && rm -rf /var/lib/apt/lists/*
+
 # Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
