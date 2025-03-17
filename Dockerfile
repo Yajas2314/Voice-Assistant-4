@@ -2,7 +2,7 @@
 FROM python:3.10
 
 # Set the working directory in the container
-WORKDIR /main_script
+WORKDIR /app
 
 # Copy the current directory contents into the container
 COPY . /main_script
