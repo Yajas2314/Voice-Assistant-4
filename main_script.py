@@ -5,7 +5,9 @@ def install_modules():
     modules = [
         'gtts',
         'SpeechRecognition',
-        'requests'
+        'requests',
+        'pyjokes',
+        'pywhatkit'
     ]
     
     for module in modules:
@@ -24,98 +26,96 @@ if __name__ == "__main__":
 
 
 
-from flask import Flask, request, jsonify, render_template
-from gtts import gTTS
-import os
-import speech_recognition as sr
+import streamlit as st
 import requests
-import random
+import math
+import pyjokes
+import pywhatkit
 
-app = Flask(__name__)
+OPENWEATHER_API_KEY = "YOUR_OPENWEATHERMAP_API_KEY"
 
-def speak(text):
-    tts = gTTS(text=text, lang='en')
-    tts.save("output.mp3")
-    os.system("mpg321 output.mp3")  # Install mpg321 if needed
-
-
-# Weather API key
-WEATHER_API_KEY = "089cb559edf9127ca22ca63afa575f8c"
-
-def speak(text):
-    """Converts text to speech."""
-    engine.say(text)
-    engine.runAndWait()
-    return text
-
-def listen():
-    """Captures audio and converts it to text."""
-    recognizer = sr.Recognizer()
-    with sr.Microphone() as source:
-        print("\nListening...")
-        audio = recognizer.listen(source)
-    try:
-        text = recognizer.recognize_google(audio, language='en-US')
-        return text.lower()
-    except sr.UnknownValueError:
-        return "Sorry, I could not understand the audio."
-    except sr.RequestError as e:
-        return f"Could not request results; {e}"
+grocery_list = []
 
 def get_weather(city):
-    """Fetches weather details for a given city."""
+    url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={OPENWEATHER_API_KEY}&units=metric"
     try:
-        url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={WEATHER_API_KEY}&units=metric"
-        response = requests.get(url).json()
-        if response.get("main"):
-            weather_desc = response["weather"][0]["description"]
-            temp = response["main"]["temp"]
-            return f"The weather in {city} is {weather_desc} with a temperature of {temp}°C."
-        return "Sorry, I couldn't fetch weather for that location."
+        data = requests.get(url).json()
+        temp = data['main']['temp']
+        desc = data['weather'][0]['description']
+        return f"The temperature in {city} is {temp}°C with {desc}."
     except:
-        return "Sorry, there was an error getting the weather information."
+        return "Sorry, I couldn't fetch the weather."
 
-def tell_joke():
-    """Returns a random joke."""
-    jokes = [
-        "Why don't scientists trust atoms? Because they make up everything!",
-        "What do you call a bear with no teeth? A gummy bear!",
-        "Why did the scarecrow win an award? Because he was outstanding in his field!",
-        "What do you call a fish wearing a bowtie? So-fish-ticated!",
-        "What do you call a fake noodle? An impasta!"
-    ]
-    return random.choice(jokes)
+def calculate(expression):
+    try:
+        result = eval(expression)
+        return f"The result is {result}"
+    except Exception:
+        return "Error in calculation."
 
-@app.route('/')
-def home():
-    """Renders the main webpage."""
-    return render_template('index.html')
+def log_antilog(command):
+    if "log" in command:
+        try:
+            num = float(command.split()[-1])
+            return f"The log of {num} is {math.log10(num)}"
+        except:
+            return "Invalid number for log."
+    elif "antilog" in command:
+        try:
+            num = float(command.split()[-1])
+            return f"The antilog of {num} is {10 ** num}"
+        except:
+            return "Invalid number for antilog."
+    return ""
 
-@app.route('/command', methods=['POST'])
-def command():
-    """Handles user commands from the frontend."""
-    data = request.json
-    user_input = data.get("query", "").lower()
+def play_song_youtube(song):
+    # Just return the URL to open in browser
+    return f"https://www.youtube.com/results?search_query={song.replace(' ', '+')}"
 
-    if "weather" in user_input:
-        if "in" in user_input:
-            city = user_input.split("in")[-1].strip()
+def process_command(command):
+    response = ""
+    if "play" in command and ("music" in command or "song" in command or "play" in command):
+        song = command.replace("play", "").strip()
+        url = play_song_youtube(song)
+        response = f"Playing {song} on YouTube: [Click here]({url})"
+
+    elif "weather in" in command:
+        city = command.split("in")[-1].strip()
+        response = get_weather(city)
+
+    elif "calculate" in command:
+        expression = command.replace("calculate", "").strip()
+        response = calculate(expression)
+
+    elif "log" in command or "antilog" in command:
+        response = log_antilog(command)
+
+    elif "joke" in command:
+        response = pyjokes.get_joke()
+
+    elif "add to grocery" in command:
+        item = command.replace("add to grocery", "").strip()
+        grocery_list.append(item)
+        response = f"Added {item} to grocery list."
+
+    elif "show grocery list" in command:
+        if grocery_list:
+            response = "Your grocery list: " + ", ".join(grocery_list)
         else:
-            return jsonify({"response": "Please specify a city."})
-        response_text = get_weather(city)
+            response = "Your grocery list is empty."
 
-    elif "joke" in user_input:
-        response_text = tell_joke()
-
-    elif "exit" in user_input or "bye" in user_input:
-        response_text = "Goodbye! Have a great day!"
+    elif "exit" in command or "stop" in command:
+        response = "Goodbye! Refresh page to start again."
 
     else:
-        response_text = "Sorry, I didn't understand that command."
+        response = "Sorry, I didn't understand that."
 
-    speak(response_text)
-    return jsonify({"response": response_text})
+    return response
 
-if __name__ == "__main__":
-    app.run(debug=True)
+st.title("Zephyr - Your AI Assistant (Web Version)")
 
+command = st.text_input("Type your command here:")
+
+if st.button("Send") and command:
+    response = process_command(command.lower())
+    st.markdown(response)
