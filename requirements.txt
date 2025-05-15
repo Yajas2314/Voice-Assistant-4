@@ -1,4 +1,5 @@
-Flask
-SpeechRecognition
-gtts
-gunicorn
+Streamlit
+pywhatkit
+requests
+pyjokes
+
