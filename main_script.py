@@ -3,7 +3,6 @@ import sys
 
 def install_modules():
     modules = [
-        'gtts',
         'SpeechRecognition',
         'requests',
         'pyjokes',
