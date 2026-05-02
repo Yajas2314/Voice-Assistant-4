@@ -1,120 +1,170 @@
-import subprocess
-import sys
-
-def install_modules():
-    modules = [
-        'SpeechRecognition',
-        'requests',
-        'pyjokes',
-        'pywhatkit'
-    ]
-    
-    for module in modules:
-        try:
-            print(f"Installing {module}...")
-            subprocess.check_call([sys.executable, '-m', 'pip', 'install', 
-                                '--default-timeout=100', module])
-            print(f"Successfully installed {module}")
-        except Exception as e:
-            print(f"Error installing {module}: {e}")
-
-if __name__ == "__main__":
-    print("Starting module installation...")
-    install_modules()
-    print("Installation process completed!")
-
-
-
 import streamlit as st
-import requests
-import math
-import pyjokes
-import pywhatkit
+from datetime import datetime
+import speech_recognition as sr
+import pyttsx3
+import webbrowser
+import hashlib
+import os
 
-OPENWEATHER_API_KEY = "YOUR_OPENWEATHERMAP_API_KEY"
+# ---------------- CONFIG ---------------- #
+APP_NAME = "ZEPHYR 2.0"
+PASSWORD_HASH = hashlib.sha256("1234".encode()).hexdigest()
 
-grocery_list = []
+# ---------------- INIT ---------------- #
+st.set_page_config(page_title=APP_NAME, layout="wide")
 
-def get_weather(city):
-    url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={OPENWEATHER_API_KEY}&units=metric"
-    try:
-        data = requests.get(url).json()
-        temp = data['main']['temp']
-        desc = data['weather'][0]['description']
-        return f"The temperature in {city} is {temp}°C with {desc}."
-    except:
-        return "Sorry, I couldn't fetch the weather."
+if "auth" not in st.session_state:
+    st.session_state.auth = False
 
-def calculate(expression):
-    try:
-        result = eval(expression)
-        return f"The result is {result}"
-    except Exception:
-        return "Error in calculation."
+if "logs" not in st.session_state:
+    st.session_state.logs = []
 
-def log_antilog(command):
-    if "log" in command:
-        try:
-            num = float(command.split()[-1])
-            return f"The log of {num} is {math.log10(num)}"
-        except:
-            return "Invalid number for log."
-    elif "antilog" in command:
-        try:
-            num = float(command.split()[-1])
-            return f"The antilog of {num} is {10 ** num}"
-        except:
-            return "Invalid number for antilog."
-    return ""
+# ---------------- SECURITY ---------------- #
+def hash_password(pwd):
+    return hashlib.sha256(pwd.encode()).hexdigest()
 
-def play_song_youtube(song):
-    # Just return the URL to open in browser
-    return f"https://www.youtube.com/results?search_query={song.replace(' ', '+')}"
+def authenticate():
+    st.markdown("### 🔐 Secure Login")
+    pwd = st.text_input("Enter Password", type="password")
 
-def process_command(command):
-    response = ""
-    if "play" in command and ("music" in command or "song" in command or "play" in command):
-        song = command.replace("play", "").strip()
-        url = play_song_youtube(song)
-        response = f"Playing {song} on YouTube: [Click here]({url})"
-
-    elif "weather in" in command:
-        city = command.split("in")[-1].strip()
-        response = get_weather(city)
-
-    elif "calculate" in command:
-        expression = command.replace("calculate", "").strip()
-        response = calculate(expression)
-
-    elif "log" in command or "antilog" in command:
-        response = log_antilog(command)
-
-    elif "joke" in command:
-        response = pyjokes.get_joke()
-
-    elif "add to grocery" in command:
-        item = command.replace("add to grocery", "").strip()
-        grocery_list.append(item)
-        response = f"Added {item} to grocery list."
-
-    elif "show grocery list" in command:
-        if grocery_list:
-            response = "Your grocery list: " + ", ".join(grocery_list)
+    if st.button("Login"):
+        if hash_password(pwd) == PASSWORD_HASH:
+            st.session_state.auth = True
+            st.success("Access Granted")
         else:
-            response = "Your grocery list is empty."
+            st.error("Access Denied")
 
-    elif "exit" in command or "stop" in command:
-        response = "Goodbye! Refresh page to start again."
+    return st.session_state.auth
+
+def log_command(command):
+    time = datetime.now().strftime("%H:%M:%S")
+    entry = f"[{time}] {command}"
+    st.session_state.logs.append(entry)
+
+    os.makedirs("logs", exist_ok=True)
+    with open("logs/history.txt", "a") as f:
+        f.write(entry + "\n")
+
+# ---------------- VOICE ---------------- #
+engine = pyttsx3.init()
+
+def speak(text):
+    engine.say(text)
+    engine.runAndWait()
+
+def listen():
+    r = sr.Recognizer()
+    with sr.Microphone() as source:
+        st.info("🎤 Listening...")
+        audio = r.listen(source)
+
+    try:
+        command = r.recognize_google(audio)
+        return command.lower()
+    except:
+        return ""
+
+# ---------------- FEATURES ---------------- #
+def tell_time():
+    return datetime.now().strftime("%H:%M")
+
+def search_google(query):
+    webbrowser.open(f"https://www.google.com/search?q={query}")
+
+# ---------------- COMMAND HANDLER ---------------- #
+def handle_command(command):
+    log_command(command)
+
+    if "time" in command:
+        result = tell_time()
+        speak(f"The time is {result}")
+        return f"🕒 Time: {result}"
+
+    elif "search" in command:
+        query = command.replace("search", "")
+        search_google(query)
+        return f"🌐 Searching: {query}"
+
+    elif "hello" in command:
+        speak("Hello, how can I help you?")
+        return "👋 Hello!"
+
+    elif "lock" in command:
+        st.session_state.auth = False
+        return "🔒 System Locked"
+
+    elif "exit" in command:
+        speak("Goodbye")
+        return "👋 Exiting..."
 
     else:
-        response = "Sorry, I didn't understand that."
+        return "⚠️ Command not recognized"
 
-    return response
+# ---------------- UI DESIGN ---------------- #
+st.markdown("""
+<style>
+body {
+    background-color: #0b0f1a;
+}
+.main-title {
+    text-align: center;
+    font-size: 42px;
+    color: #00f0ff;
+    text-shadow: 0 0 25px #00f0ff;
+}
+.panel {
+    border: 1px solid #00f0ff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 0 20px #00f0ff;
+}
+</style>
+""", unsafe_allow_html=True)
 
-st.title("Zephyr - Your AI Assistant (Web Version)")
+st.markdown(f'<div class="main-title">🤖 {APP_NAME}</div>', unsafe_allow_html=True)
 
-command = st.text_input("Type your command here:")
+# ---------------- AUTH CHECK ---------------- #
+if not st.session_state.auth:
+    if not authenticate():
+        st.stop()
 
-if st.button("Send") and command:
-    response = process_command(command.lower())
-    st.markdown(response)
+# ---------------- LAYOUT ---------------- #
+col1, col2 = st.columns(2)
+
+# -------- LEFT: VOICE -------- #
+with col1:
+    st.markdown('<div class="panel">', unsafe_allow_html=True)
+    st.subheader("🎤 Voice Command")
+
+    if st.button("Start Listening"):
+        command = listen()
+        st.write("You:", command)
+
+        if command:
+            response = handle_command(command)
+            st.success(response)
+
+    st.markdown('</div>', unsafe_allow_html=True)
+
+# -------- RIGHT: TEXT -------- #
+with col2:
+    st.markdown('<div class="panel">', unsafe_allow_html=True)
+    st.subheader("💬 Manual Command")
+
+    user_input = st.text_input("Enter command")
+
+    if st.button("Execute"):
+        if user_input:
+            response = handle_command(user_input.lower())
+            st.success(response)
+
+    st.markdown('</div>', unsafe_allow_html=True)
+
+# -------- LOGS -------- #
+st.markdown("### 📜 Activity Logs")
+for log in reversed(st.session_state.logs[-5:]):
+    st.text(log)
+
+# -------- FOOTER -------- #
+st.markdown("---")
+st.write("🔐 Secure | ⚡ Fast | 🤖 Zephyr 2.0")
